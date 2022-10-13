@@ -19,12 +19,13 @@ class Login:
         self.app.exec()
 
     def chama_tela_home(self):
+        global db
         user = self.loginUi3.lineEdit_user.text()
         password = self.loginUi3.lineEdit_password.text()
         try:
             db = sqlite3.connect("db/Cadastros_Agentes.db")
             cursor = db.cursor()
-            cursor.execute("SELECT * FROM Cadastro_Agentes WHERE Usuário = '{}';".format(user));
+            cursor.execute("SELECT * FROM Cadastro_Agentes c WHERE c.usuario = '{}';".format(user));
 
             user = cursor.fetchall()
 
@@ -32,7 +33,7 @@ class Login:
                 self.loginUi3.loginInvalido.setText("Campos Vazios")
             elif user[0][3] == password:
                 self.loginUi3.close()
-                self.tipo_de_acesso(user[0][5], user[0][1])
+                self.tipo_de_acesso(user[0][5], user[0][1], user[0][4])
             else:
                 self.loginUi3.loginInvalido.setText("Dados de Login ou Senha Incorretos")
         except Exception as e:
@@ -41,8 +42,9 @@ class Login:
         finally:
             db.close()
 
-    def tipo_de_acesso(self, acesso, nome):
-        self.autenticar()
+    def tipo_de_acesso(self, acesso, nome, biometria_blob):
+        self.autenticar(biometria_blob)
+
         self.home.lineEdit.setText(nome)
         if acesso == 1:
             self.home.lineEdit_2.setText('1')
@@ -79,24 +81,25 @@ class Login:
                                       'proibidos, '
                                       'notificar a unidade produtora quanto a interdição da produção.')
 
-    def autenticar(self):
+    def autenticar(self, biometria_blob):
         self.biometria.show()
         self.biometria.progressBar.setRange(0, 100)
         self.biometria.progressBar.setValue(0)
         self.biometria.label.setPixmap(QtGui.QPixmap(''))
         self.biometria.image.setPixmap(QtGui.QPixmap(''))
+        self.write_blob_file(biometria_blob)
 
         def progress():
             counter = 0
-            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/fingerprint.png'))
+            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/fingerprint2.png'))
             self.biometria.text_progressbar.setText('Recebendo imagem por arquivo')
 
             while int(counter) <= 100:
-                min_match_count = 10
+                min_match_count = 15
                 if counter == 25:
                     self.biometria.text_progressbar.setText('Aplicando Binarização')
-                    img1 = cv2.imread('assets/images/fingerprint.png', 0)
-                    img2 = cv2.imread('assets/images/fingerprint2.png')
+                    img1 = cv2.imread("assets/images/fingerprint2.png", 0)
+                    img2 = cv2.imread('assets/images/temp.png')
                     img1 = fingerprint_enhancer.enhance_Fingerprint(img1)
                     img2 = fingerprint_enhancer.enhance_Fingerprint(img2)
                     cv2.imwrite("assets/results/img_binarizada.png", img1)
@@ -131,11 +134,11 @@ class Login:
                     if len(good) > min_match_count:
                         src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
                         dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-                        M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+                        m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
                         matches_mask = mask.ravel().tolist()
                         h, w = img1.shape
                         pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
-                        dst = cv2.perspectiveTransform(pts, M)
+                        dst = cv2.perspectiveTransform(pts, m)
                         img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
                         print("Obteve matches o suficiente - {}/{}".format(len(good), min_match_count))
                         self.biometria.text_progressbar.setText(
@@ -145,6 +148,7 @@ class Login:
                         self.biometria.text_progressbar.setText(
                             "Não obteve matches o suficiente - {}/{}".format(len(good), min_match_count))
                         matches_mask = None
+                        return False
                     draw_params = dict(matchColor=(0, 255, 0),
                                        singlePointColor=None,
                                        matchesMask=matches_mask,
@@ -165,8 +169,19 @@ class Login:
                     time.sleep(5)
                     self.biometria.close()
                     self.home.show()
+                    return True
 
-        self.biometria.pushButton.clicked.connect(lambda: progress())
+        def progress_error():
+            time.sleep(7)
+            return self.logout()
+
+        self.biometria.pushButton.clicked.connect(lambda: progress() if progress() else progress_error())
+
+    @staticmethod
+    def write_blob_file(blob):
+        imagem = open("assets/images/temp.png", "wb")
+        imagem.write(blob)
+        imagem.close()
 
     def logout(self):
         self.home.close()
