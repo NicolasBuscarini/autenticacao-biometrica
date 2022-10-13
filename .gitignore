@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+bot/Excel/Resultado.xlsx
+/.idea/misc.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/discord.xml
+/bot/Assets/IO/Output/Resultado.xlsx
+/bot/.idea/discord.xml
