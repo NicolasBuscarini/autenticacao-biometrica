@@ -99,8 +99,8 @@ class Login:
                     img2 = cv2.imread('assets/images/fingerprint2.png')
                     img1 = fingerprint_enhancer.enhance_Fingerprint(img1)
                     img2 = fingerprint_enhancer.enhance_Fingerprint(img2)
-                    cv2.imwrite("img_binarizada.png", img1)
-                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/img_binarizada.png'))
+                    cv2.imwrite("assets/results/img_binarizada.png", img1)
+                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/results/img_binarizada.png'))
 
                 if counter == 50:
                     self.biometria.text_progressbar.setText('Extração de Características')
@@ -111,9 +111,9 @@ class Login:
                     kp2, des2 = sift.detectAndCompute(img2, None)
                     kp_img = cv2.drawKeypoints(img1, kp1, None, color=(0, 255, 0),
                                                flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-                    cv2.imwrite("keypoints.png", kp_img)
-                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/keypoints.png'))
-                    time.sleep(2)
+                    cv2.imwrite("assets/results/keypoints.png", kp_img)
+                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/results/keypoints.png'))
+                    time.sleep(0.1)
 
                 if counter == 75:
                     self.biometria.image.setPixmap(QtGui.QPixmap(''))
@@ -151,17 +151,17 @@ class Login:
                                        flags=2)
                     img3 = cv2.drawMatches(img1, kp1, img2, kp2, good, None, **draw_params)
                     plt.imshow(img3, )
-                    plt.savefig('Matches.png', format='png')
-                    self.biometria.label.setPixmap(QtGui.QPixmap('assets/images/Matches.png'))
-                    time.sleep(2)
+                    plt.savefig('assets/results/Matches.png', format='png')
+                    self.biometria.label.setPixmap(QtGui.QPixmap('assets/results/Matches.png'))
+                    time.sleep(0.1)
 
                 counter += 1
                 self.biometria.progressBar.setValue(int(counter))
-                time.sleep(1)
+                time.sleep(0.2)
 
                 if counter == 100:
                     self.biometria.text_progressbar.setText('Biometria Validada')
-                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/Matches.png'))
+                    self.biometria.image.setPixmap(QtGui.QPixmap('assets/results/Matches.png'))
                     time.sleep(5)
                     self.biometria.close()
                     self.home.show()
