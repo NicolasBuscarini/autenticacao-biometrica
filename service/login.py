@@ -91,14 +91,14 @@ class Login:
 
         def progress():
             counter = 0
-            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/fingerprint2.png'))
+            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/nicolas.png'))
             self.biometria.text_progressbar.setText('Recebendo imagem por arquivo')
 
             while int(counter) <= 100:
                 min_match_count = 15
                 if counter == 25:
                     self.biometria.text_progressbar.setText('Aplicando Binarização')
-                    img1 = cv2.imread("assets/images/fingerprint2.png", 0)
+                    img1 = cv2.imread("assets/images/nicolas.png", 0)
                     img2 = cv2.imread('assets/images/temp.png')
                     img1 = fingerprint_enhancer.enhance_Fingerprint(img1)
                     img2 = fingerprint_enhancer.enhance_Fingerprint(img2)
