@@ -37,4 +37,4 @@ def insert_blob(nome, usuario, senha, img, acesso):
         print("MySQL connection is closed")
 
 
-insert_blob("Ronaldo", "ronaldo", "ronaldo123", "assets/images/ronaldo.png", 3)
+insert_blob("Nicolas", "nicolas", "nicolas123", "assets/images/fingerprint2.png", 3)

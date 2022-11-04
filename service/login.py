@@ -75,11 +75,7 @@ class Login:
                 'da empresa.')
         elif acesso == 3:
             self.home.lineEdit_2.setText('3')
-            self.home.label_4.setText('Agrotóxicos empregados nas produções agrícolas - glifosato; mancozebe; '
-                                      'acefato; óleo '
-                                      'mineral; atrazina;\n Ação do sistema: quando da ocorrência de agrotóxicos '
-                                      'proibidos, '
-                                      'notificar a unidade produtora quanto a interdição da produção.')
+            self.home.label_4.setText('Usuario autentificado biometricamente.')
 
     def autenticar(self, biometria_blob):
         self.biometria.show()
@@ -91,14 +87,14 @@ class Login:
 
         def progress():
             counter = 0
-            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/nicolas.png'))
+            self.biometria.image.setPixmap(QtGui.QPixmap('assets/images/fingerprint.png'))
             self.biometria.text_progressbar.setText('Recebendo imagem por arquivo')
 
             while int(counter) <= 100:
-                min_match_count = 15
+                min_match_count = 10
                 if counter == 25:
                     self.biometria.text_progressbar.setText('Aplicando Binarização')
-                    img1 = cv2.imread("assets/images/nicolas.png", 0)
+                    img1 = cv2.imread("assets/images/fingerprint.png", 0)
                     img2 = cv2.imread('assets/images/temp.png')
                     img1 = fingerprint_enhancer.enhance_Fingerprint(img1)
                     img2 = fingerprint_enhancer.enhance_Fingerprint(img2)
